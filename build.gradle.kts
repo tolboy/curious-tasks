@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    application
 }
 
 group = "ru.tolboy"
@@ -16,6 +17,19 @@ dependencies {
     implementation("org.tinylog:tinylog-impl:2.6.1")
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+application {
+    mainClass.set("ru.tolboy.Main")
+}
+
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.getByName("run", JavaExec::class) {
+    standardInput = System.`in`
 }

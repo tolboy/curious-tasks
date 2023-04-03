@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class CopyUtils {
     private static final Map<Object, Object> cache = new IdentityHashMap<>();
     private static final Lock WRITE_LOCK = new ReentrantReadWriteLock().writeLock();
-    private static final String LOGGER_INFO_STR = "deepCopyInternal -> class {}";
+    private static final String LOGGER_INFO_STR = "Class for copy is -> {}";
     private static final String UNSUPPORTED_EXC_STR = "Cloning Interface|Synthetic|Annotation types is not supported yet";
 
     /**
@@ -24,7 +24,7 @@ public class CopyUtils {
      */
     @SuppressWarnings("unchecked")
     public static <T> T deepCopy(T obj) {
-        // Lock the source object to prevent access to it while copying
+        // Lock the copy process to prevent access to it while copying
         WRITE_LOCK.lock();
         try {
             if (cache.containsKey(obj)) {
@@ -32,14 +32,14 @@ public class CopyUtils {
             }
             T copy = deepCopyInternal(obj);
             cache.put(obj, copy);
-            Logger.info("deepCopy -> cache size {}", cache.size());
+            Logger.info("cache size {}", cache.size());
             return copy;
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             cache.clear();
             WRITE_LOCK.unlock();
-            Logger.info("deepCopy finally -> cache size {} (cleared), WRITE_LOCK released", cache.size());
+            Logger.info("cache size {} (cleared), WRITE_LOCK released", cache.size());
         }
     }
 
