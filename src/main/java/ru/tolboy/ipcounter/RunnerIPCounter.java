@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
@@ -39,17 +40,21 @@ public class RunnerIPCounter implements Callable<Long> {
             return -1L;
         }
         Path path = Path.of(args[0]);
+        FileLock lock;
+        try (FileChannel channel = FileChannel.open(path, StandardOpenOption.WRITE)) {
+            // lock file
+            lock = channel.lock();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         Instant startTime = Instant.now();
-        try (Stream<String> ipAddresses = Files.lines(path, StandardCharsets.US_ASCII);
-             FileChannel channel = FileChannel.open(path, StandardOpenOption.WRITE);
-             FileLock lock = channel.lock()) {
-
+        try (Stream<String> ipAddresses = Files.lines(path, StandardCharsets.US_ASCII)) {
             result = ipAddresses
                     .mapToInt(new IPConverter())
                     .collect(BitSetContainer::new, IntContainer::add, IntContainer::addAll)
                     .countDistinct();
-
-            lock.release();
+            // release file
+            Objects.requireNonNull(lock).release();
         } catch (IOException e) {
             System.out.println("Error during processing file: " + path);
             throw new RuntimeException(e);
