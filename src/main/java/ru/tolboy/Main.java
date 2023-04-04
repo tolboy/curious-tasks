@@ -25,7 +25,7 @@ public class Main {
         System.out.println("Copied object is not the same as original: " + (originalMan != deepCopyResult));
         consoleTaskSeparatorRepeater();
         // IPs unique counter task
-        RunnerIPCounter<Long> ipCounterThread = new RunnerIPCounter<>(args);
+        RunnerIPCounter ipCounterThread = new RunnerIPCounter(args);
         Long ipCounterResult = executor.submit(ipCounterThread).get();
         System.out.println("Unique ips must be equal 1 billion: " + ipCounterResult);
         // All tasks are ended -> shutdown to finish this demo program
